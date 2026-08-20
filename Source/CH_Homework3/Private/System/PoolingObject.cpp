@@ -3,8 +3,12 @@
 
 APoolingObject::APoolingObject()
 {
+	PrimaryActorTick.bCanEverTick = false;
+
 	Pool = nullptr;
-	PoolState = EPoolingObjectState::InPool;
+	PoolState = EPoolingObjectState::InPool; 
+	SetActorHiddenInGame(true);
+	SetActorEnableCollision(false);
 }
 
 void APoolingObject::OnAcquire(bool bNeedTick)
