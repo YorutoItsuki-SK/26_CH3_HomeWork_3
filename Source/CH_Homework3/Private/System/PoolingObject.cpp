@@ -21,12 +21,12 @@ void APoolingObject::OnRelease()
 	SetActorTickEnabled(false);
 }
 
-void APoolingObject::SetPool(APoolBase* InPool)
+void APoolingObject::SetPool(APoolBase* NewPool)
 {
 	if (!Pool) {
 		return;
 	}
-	Pool = InPool;
+	Pool = NewPool;
 }
 
 void APoolingObject::ReturnToPool() {

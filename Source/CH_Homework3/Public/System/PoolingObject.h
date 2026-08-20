@@ -27,7 +27,7 @@ public:
 	virtual void OnRelease();
 
 	UFUNCTION(BlueprintCallable, Category = "Pool")
-	void SetPool(APoolBase* InPool);
+	void SetPool(APoolBase* NewPool);
 	UFUNCTION(BlueprintCallable, Category = "Pool")
 	void ReturnToPool();
 
