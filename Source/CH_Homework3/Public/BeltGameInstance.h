@@ -25,14 +25,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "GameData")
 	UDataTable* GetTableWave() const;
 
-
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GameData")
 	int32 TotalScore;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GameData")
 	int32 CurrentLevelIndex;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameData")
-	TArray<FName> LevelMapNames;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GameData")
 	TArray<UDataTable*> TableWaves;
 	
