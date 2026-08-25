@@ -19,6 +19,7 @@ void APoolBase::InitalizePool(TSubclassOf<APoolingObject> ObjectClass, int32 Poo
 			GetWorld()->SpawnActor<APoolingObject>(ObjectClass);
 
 		if (NewObject) {
+			NewObject->SetPool(this);
 			AllObjects.Add(NewObject);
 			AvailableObjects.Add(NewObject);
 		}
@@ -30,6 +31,7 @@ APoolingObject* APoolBase::Acquire()
 	if (AvailableObjects.IsEmpty()) {
 		APoolingObject* NewObject =
 			GetWorld()->SpawnActor<APoolingObject>(ObjectClassSaved);
+		NewObject->SetPool(this);
 		AllObjects.Add(NewObject);
 		NewObject->SetPoolState(EPoolingObjectState::Active);
 		return NewObject;
@@ -47,8 +49,8 @@ void APoolBase::Release(APoolingObject* Object)
 	if (Object->GetPoolState() == EPoolingObjectState::InPool) {
 		return;
 	}
-	AvailableObjects.Push(Object);
 	Object->SetPoolState(EPoolingObjectState::InPool);
 	Object->OnRelease();
+	AvailableObjects.Push(Object);
 }
 

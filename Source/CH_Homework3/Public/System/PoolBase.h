@@ -22,7 +22,7 @@ public:
 	APoolingObject* Acquire();
 	void Release(APoolingObject* Object);
 
-private:
+protected:
 	UPROPERTY()
 	TArray<TObjectPtr<APoolingObject>> AllObjects;
 	UPROPERTY()
