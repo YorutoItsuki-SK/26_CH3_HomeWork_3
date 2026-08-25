@@ -19,16 +19,19 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Score")
 	void AddScore(int32 Amount);
 
-	void OnCoinCollected();
-
 	void UpdateHUD();
 
 	UFUNCTION(BlueprintCallable, Category = "Level")
 	void OnGameOver();
 	UFUNCTION(BlueprintCallable, Category = "Level")
 	UDataTable* GetWaveData() const;
+	UFUNCTION(BlueprintCallable, Category = "Level")
+	void EndLevel();
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Score")
 	int32 Score;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level")
+	TArray<FName> LevelMapNames;
+
 };
