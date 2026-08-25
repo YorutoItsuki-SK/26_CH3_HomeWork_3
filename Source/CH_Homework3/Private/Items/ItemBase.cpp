@@ -1,6 +1,9 @@
 ﻿#include "Items/ItemBase.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Spawner/ItemSpawnVolume.h"
+#include "BeltGameMode.h"
 
 AItemBase::AItemBase()
 {
@@ -14,13 +17,9 @@ AItemBase::AItemBase()
 
 	CollisionActive = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionActive"));
 	CollisionActive->SetupAttachment(Scene);
-	CollisionActive->OnComponentBeginOverlap.AddDynamic(this, &AItemBase::OnOverlapStartActive);
-	CollisionActive->OnComponentEndOverlap.AddDynamic(this, &AItemBase::OnOverlapEndActive);
 
 	CollisionUi = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionUi"));
 	CollisionUi->SetupAttachment(Scene);
-	CollisionUi->OnComponentBeginOverlap.AddDynamic(this, &AItemBase::OnOverlapStartWidget);
-	CollisionUi->OnComponentEndOverlap.AddDynamic(this, &AItemBase::OnOverlapEndWidget);
 	CollisionUi->InitSphereRadius(300.f);
 
 	ItemWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("Widget"));
@@ -33,11 +32,37 @@ void AItemBase::ActivateItem(AActor* Activator)
 	bIsActivated = true;
 }
 
-void AItemBase::Deploy(FVector Location, FRotator Rotate)
+void AItemBase::Deploy(FVector Location)
 {
-	SetActorLocationAndRotation(Location, Rotate);
+	SetActorLocation(Location);
 	bIsActivated = false;
 	Super::OnAcquire();
+}
+
+void AItemBase::MoveX(float DeltaSpeed)
+{
+	FVector CurrentLocation = GetActorLocation();
+	SetActorLocation(
+		FVector(
+			CurrentLocation.X + DeltaSpeed,
+			CurrentLocation.Y,
+			CurrentLocation.Z
+		)
+	);
+}
+
+void AItemBase::SetSpawner(AItemSpawnVolume* NewItemSpawnVolume)
+{
+	Spawner = NewItemSpawnVolume;
+}
+
+void AItemBase::BeginPlay()
+{
+	Super::BeginPlay();
+	CollisionActive->OnComponentBeginOverlap.AddDynamic(this, &AItemBase::OnOverlapStartActive);
+	CollisionActive->OnComponentEndOverlap.AddDynamic(this, &AItemBase::OnOverlapEndActive);
+	CollisionUi->OnComponentBeginOverlap.AddDynamic(this, &AItemBase::OnOverlapStartWidget);
+	CollisionUi->OnComponentEndOverlap.AddDynamic(this, &AItemBase::OnOverlapEndWidget);
 }
 
 void AItemBase::OnOverlapStartWidget(
@@ -77,7 +102,11 @@ void AItemBase::OnOverlapStartActive(
 	const FHitResult& SweepResult)
 {
 	if (!OtherActor || !OtherActor->ActorHasTag("Player")) return;
-	if (bIsActivated) return;
+	if (bIsActivated) {
+		UE_LOG(LogTemp, Warning, TEXT("AItemBase::OnOverlapStartActive, Activate : True"));
+		return;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("AItemBase::OnOverlapStartActive, Activate : False"));
 	bIsActivated = true;
 	ActivateItem(OtherActor);
 }
@@ -88,4 +117,18 @@ void AItemBase::OnOverlapEndActive(
 	UPrimitiveComponent* OtherComp, 
 	int32 OtherBodyIndex)
 {
+}
+
+void AItemBase::ReturnToPool()
+{
+	if (Spawner.IsValid()) {
+		Spawner.Get()->ReportDespawn(this);
+	}
+
+	ABeltGameMode* GameMode = Cast<ABeltGameMode>(GetWorld()->GetAuthGameMode());
+	if (GameMode) {
+		GameMode->ItemDespawned();
+	}
+
+	Super::ReturnToPool();
 }

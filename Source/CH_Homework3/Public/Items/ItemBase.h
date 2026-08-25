@@ -6,6 +6,7 @@
 
 class USphereComponent;
 class UWidgetComponent;
+class AItemSpawnVolume;
 
 UCLASS()
 class CH_HOMEWORK3_API AItemBase : public APoolingObject
@@ -15,9 +16,17 @@ class CH_HOMEWORK3_API AItemBase : public APoolingObject
 public:
 	AItemBase();
 
+	UFUNCTION()
 	virtual void ActivateItem(AActor* Activator);
 
-	virtual void Deploy(FVector Location, FRotator Rotate);
+	UFUNCTION()
+	virtual void Deploy(FVector Location);
+
+	void MoveX(float DeltaSpeed);
+
+	void SetSpawner(AItemSpawnVolume* NewItemSpawnVolume);
+
+	virtual void ReturnToPool() override;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item|Component")
@@ -35,8 +44,16 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item|Effect")
 	UWidgetComponent* ItemWidget;
 
-	bool bIsActivated = false;
+	bool bIsActivated = true;
 
+	virtual void BeginPlay() override;
+
+	FTimerHandle SpawnTimer;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item|Spawner")
+	TWeakObjectPtr<AItemSpawnVolume> Spawner;
+
+	UFUNCTION()
 	virtual void OnOverlapStartWidget(
 		UPrimitiveComponent* OverlappedComp,
 		AActor* OtherActor,
@@ -45,12 +62,14 @@ protected:
 		bool bFromSweep,
 		const FHitResult& SweepResult
 	);
+	UFUNCTION()
 	virtual void OnOverlapEndWidget(
 		UPrimitiveComponent* OverlappedComp,
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex
 	);
+	UFUNCTION()
 	virtual void OnOverlapStartActive(
 		UPrimitiveComponent* OverlappedComp,
 		AActor* OtherActor,
@@ -59,12 +78,11 @@ protected:
 		bool bFromSweep,
 		const FHitResult& SweepResult
 	);
+	UFUNCTION()
 	virtual void OnOverlapEndActive(
 		UPrimitiveComponent* OverLappedComp,
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex
 	);
-	
-
 };
