@@ -67,8 +67,11 @@ void ABeltGameMode::WaveStart()
 	}
 
 	if (CurrentWaveIndex >= AllRows.Num()) {
+		UE_LOG(LogTemp, Warning, TEXT("ABeltGameMode::WaveStart, GoToNextLevel"));
+		GoToNextLevel();
 		return;
 	}
+	UE_LOG(LogTemp, Warning, TEXT("Wave %d 시작"), (CurrentWaveIndex + 1));
 
 	FTableWave* Row = AllRows[CurrentWaveIndex];
 
@@ -114,12 +117,18 @@ void ABeltGameMode::ItemDespawned() {
 		WaveRestTimer,
 		this,
 		&ABeltGameMode::WaveStart,
-		10.f,
+		3.f,
 		false
 	);
 }
 
 void ABeltGameMode::GoToNextLevel()
 {
-
+	UE_LOG(LogTemp, Warning, TEXT("ABeltGameMode::GoToNextLevel"));
+	ABeltGameState* BeltGameState = Cast<ABeltGameState>(GetWorld()->GetGameState());
+	if (!BeltGameState) {
+		UE_LOG(LogTemp, Warning, TEXT("ABeltGameMode::GoToNextLevel, BeltGameState is Null"));
+		return;
+	}
+	BeltGameState->EndLevel();
 }
