@@ -6,6 +6,7 @@
 #include "Spawner/ItemSpawnVolume.h"
 #include "BeltGameInstance.h"
 #include "Controller/TestPlayerController.h"
+#include "Kismet/GameplayStatics.h"
 
 ABeltGameState::ABeltGameState() {
 	PrimaryActorTick.bCanEverTick = false;
@@ -59,4 +60,36 @@ UDataTable* ABeltGameState::GetWaveData() const
 	}
 
 	return GameInstance->GetTableWave();
+}
+
+void ABeltGameState::EndLevel()
+{
+	UGameInstance* GameInstanceRaw = GetGameInstance();
+	if (!GameInstanceRaw) {
+		UE_LOG(LogTemp, Warning, TEXT("ABeltGameState::EndLevel, GameInstanceRaw is Null"));
+		return;
+	}
+	UBeltGameInstance* GameInstance = Cast<UBeltGameInstance>(GameInstanceRaw);
+	if (!GameInstance) {
+		UE_LOG(LogTemp, Warning, TEXT("ABeltGameState::EndLevel, GameInstance is Null"));
+		return;
+	}
+	GameInstance->AddToScore(Score);
+	GameInstance->SetCurrentLevelIndex(GameInstance->GetCurrentLevelIndex() + 1);
+	int32 CurrentLevelIndex = GameInstance->GetCurrentLevelIndex();
+
+	if (CurrentLevelIndex >= LevelMapNames.Num()) {
+		UE_LOG(LogTemp, Warning, TEXT("ABeltGameState::EndLevel, OnGameOver, Over index"));
+		OnGameOver();
+		return;
+	}
+
+	if (LevelMapNames.IsValidIndex(CurrentLevelIndex)) {
+		UE_LOG(LogTemp, Warning, TEXT("ABeltGameState::EndLevel, OpenLevel"));
+		UGameplayStatics::OpenLevel(GetWorld(), LevelMapNames[CurrentLevelIndex]);
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("ABeltGameState::EndLevel, OnGameOver Not IsValidIndex"));
+		OnGameOver();
+	}
 }
