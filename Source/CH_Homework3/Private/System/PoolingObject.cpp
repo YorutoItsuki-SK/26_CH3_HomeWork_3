@@ -27,13 +27,18 @@ void APoolingObject::OnRelease()
 
 void APoolingObject::SetPool(APoolBase* NewPool)
 {
-	if (!Pool) {
+	if (!IsValid(NewPool)) {
+		UE_LOG(LogTemp, Warning, TEXT("APoolingObject::SetPool, Pool is Null"));
 		return;
 	}
 	Pool = NewPool;
 }
 
 void APoolingObject::ReturnToPool() {
+	if (!Pool) {
+		UE_LOG(LogTemp, Warning, TEXT("APoolingObject::ReturnToPool, Pool is Null"));
+		return;
+	}
 	Pool->Release(this);
 }
 

@@ -29,11 +29,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Pool")
 	void SetPool(APoolBase* NewPool);
 	UFUNCTION(BlueprintCallable, Category = "Pool")
-	void ReturnToPool();
+	virtual void ReturnToPool();
 
 	EPoolingObjectState GetPoolState() const;
 
-private:
+protected:
 	UPROPERTY()
 	TObjectPtr<APoolBase> Pool;
 
