@@ -4,27 +4,36 @@
 
 APoolManager::APoolManager()
 {
-
+	ItemSpawnTable = nullptr;
 }
 
-APoolBase* APoolManager::AddPool(TSubclassOf<APoolingObject> PoolingClass, APoolBase* NewPool)
+APoolBase* APoolManager::AddPool(TSubclassOf<APoolingObject> PoolingClass, int32 PoolSize)
 {
 	if (PoolsMap.Contains(PoolingClass)) {
 		return PoolsMap[PoolingClass];
 	}
+
+	APoolBase* NewPool = GetWorld()->SpawnActor<APoolBase>();
+	NewPool->InitalizePool(PoolingClass, PoolSize);
 	PoolsMap.Add(PoolingClass, NewPool);
 	return NewPool;
 }
 
 APoolingObject* APoolManager::GetRandomItem()
 {
-	if (!ItemSpawnTable) return nullptr;
+	if (!ItemSpawnTable) {
+		UE_LOG(LogTemp, Warning, TEXT("APoolManager::GetRandomItem, ItemSpawnTable is Null"));
+		return nullptr;
+	} 
 
 	TArray<FTableItemSpawn*> AllRows;
 	static const FString ContextString(TEXT("APoolManager::GetRandomItem"));
 	ItemSpawnTable->GetAllRows(ContextString, AllRows);
 
-	if (AllRows.IsEmpty()) return nullptr;
+	if (AllRows.IsEmpty()) {
+		UE_LOG(LogTemp, Warning, TEXT("APoolManager::GetRandomItem, AllRows is Empty"));
+		return nullptr;
+	}
 
 	float TotalChance = 0.f;
 	for (const FTableItemSpawn* Row : AllRows) {
@@ -51,11 +60,13 @@ APoolingObject* APoolManager::GetRandomItem()
 	}
 
 	if (!SpawnClass) {
+		UE_LOG(LogTemp, Warning, TEXT("APoolManager::GetRandomItem, SpawnClass is Null"));
 		return nullptr;
 	}
 
 	APoolBase* SelectedPool = PoolsMap[SpawnClass];
 	if (!SelectedPool) {
+		UE_LOG(LogTemp, Warning, TEXT("APoolManager::GetRandomItem, SelectedPool is Null"));
 		return nullptr;
 	}
 

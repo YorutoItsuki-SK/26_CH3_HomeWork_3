@@ -15,7 +15,7 @@ class CH_HOMEWORK3_API APoolManager : public AActor
 public:	
 	APoolManager();
 
-	APoolBase* AddPool(TSubclassOf<APoolingObject> PoolingClass, APoolBase* NewPool);
+	APoolBase* AddPool(TSubclassOf<APoolingObject> PoolingClass, int32 PoolSize);
 
 	UFUNCTION(BlueprintCallable, Category = "Pool")
 	APoolingObject* GetRandomItem();
