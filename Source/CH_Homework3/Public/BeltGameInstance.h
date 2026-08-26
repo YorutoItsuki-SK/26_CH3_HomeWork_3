@@ -13,7 +13,7 @@ public:
 	UBeltGameInstance();
 
 	UFUNCTION(BlueprintCallable, Category = "GameData")
-	void AddToScore(int32 Amount);
+	void SetScore(int32 Amount);
 	UFUNCTION(BlueprintCallable, Category = "GameData")
 	void SetCurrentLevelIndex(int32 NewLevelIndex);
 	UFUNCTION(BlueprintCallable, Category = "GameData")

@@ -6,10 +6,9 @@ UBeltGameInstance::UBeltGameInstance()
 	CurrentLevelIndex = 0;
 }
 
-void UBeltGameInstance::AddToScore(int32 Amount)
+void UBeltGameInstance::SetScore(int32 Amount)
 {
 	TotalScore += Amount;
-	UE_LOG(LogTemp, Warning, TEXT("Total Score Updated: %d"), TotalScore);
 }
 
 void UBeltGameInstance::SetCurrentLevelIndex(int32 NewLevelIndex)
