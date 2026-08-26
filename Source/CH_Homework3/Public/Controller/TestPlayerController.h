@@ -6,6 +6,7 @@
 
 class UInputMappingContext;
 class UInputAction;
+class UMainMenu;
 
 UCLASS()
 class CH_HOMEWORK3_API ATestPlayerController : public APlayerController
@@ -29,7 +30,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "HUD")
 	void ShowGameHud();
 	UFUNCTION(BlueprintCallable, Category = "Menu")
-	void ShowMainMenu(bool bIsRestart);
+	void ShowMainMenu(bool bIsDead = false);
 
 protected:
 
@@ -38,7 +39,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "HUD")
 	UUserWidget* HUDWidgetInstance;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD")
-	TSubclassOf<UUserWidget> MainMenuWidgetClass;
+	UMainMenu* MainMenuWidgetClass;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "HUD")
 	UUserWidget* MainMenuWidgetInstance;
 };

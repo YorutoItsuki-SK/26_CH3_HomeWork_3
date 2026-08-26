@@ -8,6 +8,7 @@
 
 #include "BeltGameState.h"
 #include "BeltGameInstance.h"
+#include "UI/MainMenu.h"
 
 ATestPlayerController::ATestPlayerController():
 	InputMappingContext(nullptr),
@@ -38,6 +39,15 @@ void ATestPlayerController::BeginPlay()
 	}
 	PlayerSubSystem->AddMappingContext(InputMappingContext, 0);
 
+	bShowMouseCursor = false;
+	SetInputMode(FInputModeGameOnly());
+
+	FString CurrentMapName = GetWorld()->GetMapName();
+	UE_LOG(LogTemp, Warning, TEXT("ATestPlayerController::BeginPlay, CurrentMapName : %s"), *CurrentMapName);
+	if (CurrentMapName.Contains("MainMenu")) {
+		UE_LOG(LogTemp, Warning, TEXT("ATestPlayerController::BeginPlay, MainMenu"));
+		ShowMainMenu(false);
+	}
 }
 
 UUserWidget* ATestPlayerController::GetHUDWidget() const
@@ -75,57 +85,56 @@ void ATestPlayerController::ShowGameHud()
 	GameState->UpdateHUD();
 }
 
-void ATestPlayerController::ShowMainMenu(bool bIsRestart)
+void ATestPlayerController::ShowMainMenu(bool bIsDead)
 {
-	if (HUDWidgetInstance) {
-		HUDWidgetInstance->RemoveFromParent();
-		HUDWidgetInstance = nullptr;
-	}
-
-	if (MainMenuWidgetInstance) {
-		MainMenuWidgetInstance->RemoveFromParent();
-		MainMenuWidgetInstance = nullptr;
-	}
-
 	if (!MainMenuWidgetClass) {
+		UE_LOG(LogTemp, Warning, TEXT("ATestPlayerController::ShowMainMenu, MainMenuWidgetClass is Null"));
 		return;
 	}
-	MainMenuWidgetInstance = CreateWidget<UUserWidget>(this, MainMenuWidgetClass);
-	if (!MainMenuWidgetInstance) {
-		return;
+	if (MainMenuWidgetClass) {
+		MainMenuWidgetClass->RemoveFromParent();
 	}
-	MainMenuWidgetInstance->AddToViewport();
-	bShowMouseCursor = true;
-	SetInputMode(FInputModeUIOnly());
 
-	UTextBlock* ButtonText = Cast<UTextBlock>(MainMenuWidgetInstance->GetWidgetFromName(TEXT("StartButtonText")));
-	if (!ButtonText) {
+	MainMenuWidgetClass->AddToViewport();
+
+	UBeltGameInstance* GameInstance = Cast<UBeltGameInstance>(UGameplayStatics::GetGameInstance(this));
+	if (!GameInstance) {
+		UE_LOG(LogTemp, Warning, TEXT("ATestPlayerController::ShowMainMenu, UBeltGameInstance is Null"));
 		return;
 	}
-	if (bIsRestart) {
-		ButtonText->SetText(FText::FromString(TEXT("Restart")));
+	ABeltGameState* GameState = GetWorld() ? GetWorld()->GetGameState<ABeltGameState>() : nullptr;
+	if (!GameState) {
+		UE_LOG(LogTemp, Warning, TEXT("ATestPlayerController::ShowMainMenu, GameState is Null"));
+		return;
+	}
+	if (GameInstance->GetCurrentLevelIndex() == 0) {
+		MainMenuWidgetClass->SetBoxScoreShow(false);
 	}
 	else {
-		ButtonText->SetText(FText::FromString(TEXT("Start")));
+		MainMenuWidgetClass->SetBoxScoreShow(true);
+		MainMenuWidgetClass->SetScoreText(FString::Printf(TEXT("Score : %d"), GameState->GetScore()));
 	}
 
-	if (bIsRestart) {
-		UFunction* PlayAnimFunc = MainMenuWidgetInstance->FindFunction(FName("PlayGameOverAnim"));
-		if (!PlayAnimFunc) {
-			return;
-		}
-		MainMenuWidgetInstance->ProcessEvent(PlayAnimFunc, nullptr);
-
-		UTextBlock* TotalScoreText = Cast<UTextBlock>(MainMenuWidgetInstance->GetWidgetFromName("TotalScoreText"));
-		if (!TotalScoreText) {
-			return;
-		}
-		UBeltGameInstance* GameInstance = Cast<UBeltGameInstance>(UGameplayStatics::GetGameInstance(this));
-		if (!GameInstance) {
-			return;
-		}
-		TotalScoreText->SetText(
-			FText::FromString(FString::Printf(TEXT("Total Score : %d"), GameInstance->GetScore()))
-		);
+	if (bIsDead) {
+		MainMenuWidgetClass->SetBoxStartShow(false);
 	}
+	else {
+		if (GameInstance->GetCurrentLevelIndex() == 0) {
+			UE_LOG(LogTemp, Warning, TEXT("ATestPlayerController::ShowMainMenu, Start"));
+			MainMenuWidgetClass->SetBoxStartShow(true);
+			MainMenuWidgetClass->SetMenuText(FString(TEXT("게임 시작")));
+		}
+		else if (GameInstance->HasMoreLevel()) {
+			UE_LOG(LogTemp, Warning, TEXT("ATestPlayerController::ShowMainMenu, HasMoreLevel"));
+			MainMenuWidgetClass->SetBoxStartShow(true);
+			MainMenuWidgetClass->SetMenuText(FString(TEXT("다음 레벨")));
+		}
+		else {
+			UE_LOG(LogTemp, Warning, TEXT("ATestPlayerController::ShowMainMenu, End"));
+			MainMenuWidgetClass->SetBoxStartShow(false);
+		}
+	}
+
+	bShowMouseCursor = true;
+	SetInputMode(FInputModeUIOnly());
 }
