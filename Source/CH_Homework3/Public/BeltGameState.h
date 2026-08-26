@@ -22,7 +22,7 @@ public:
 	void UpdateHUD();
 
 	UFUNCTION(BlueprintCallable, Category = "Level")
-	void OnGameOver();
+	void OnGameOver(bool bIsDead = false);
 	UFUNCTION(BlueprintCallable, Category = "Level")
 	UDataTable* GetWaveData() const;
 	UFUNCTION(BlueprintCallable, Category = "Level")

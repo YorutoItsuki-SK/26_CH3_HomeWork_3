@@ -16,6 +16,16 @@ ABeltGameState::ABeltGameState() {
 
 void ABeltGameState::BeginPlay() {
 	Super::BeginPlay();
+	UGameInstance* GameInstanceRaw = GetGameInstance();
+	if (!GameInstanceRaw) {
+		return;
+	}
+	UBeltGameInstance* GameInstance = Cast<UBeltGameInstance>(GameInstanceRaw);
+	if (!GameInstance) {
+		UE_LOG(LogTemp, Warning, TEXT("ABeltGameState::BeginPlay, GameInstance is Null"));
+		return;
+	}
+	Score = GameInstance->GetScore();
 }
 
 int32 ABeltGameState::GetScore() const {
@@ -28,22 +38,20 @@ void ABeltGameState::AddScore(int32 Amount) {
 
 void ABeltGameState::UpdateHUD()
 {
-	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+}
+
+void ABeltGameState::OnGameOver(bool bIsDead)
+{
+	APlayerController* PlayerControllerRaw = GetWorld()->GetFirstPlayerController();
+	if (!PlayerControllerRaw) {
+		return;
+	}
+	ATestPlayerController* PlayerController = Cast<ATestPlayerController>(PlayerControllerRaw);
 	if (!PlayerController) {
 		return;
 	}
-	ATestPlayerController* TestPlayerController = Cast<ATestPlayerController>(PlayerController);
-	if (!TestPlayerController) {
-		return;
-	}
-	UUserWidget* HUDWidget = TestPlayerController->GetHUDWidget();
-	if (!HUDWidget) {
-		return;
-	}
-}
-
-void ABeltGameState::OnGameOver()
-{
+	PlayerController->SetPause(true);
+	PlayerController->ShowMainMenu(bIsDead);
 }
 
 UDataTable* ABeltGameState::GetWaveData() const
@@ -74,7 +82,7 @@ void ABeltGameState::EndLevel()
 		UE_LOG(LogTemp, Warning, TEXT("ABeltGameState::EndLevel, GameInstance is Null"));
 		return;
 	}
-	GameInstance->AddToScore(Score);
+	GameInstance->SetScore(Score);
 	GameInstance->SetCurrentLevelIndex(GameInstance->GetCurrentLevelIndex() + 1);
 	int32 CurrentLevelIndex = GameInstance->GetCurrentLevelIndex();
 
