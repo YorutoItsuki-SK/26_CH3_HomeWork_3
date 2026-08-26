@@ -64,4 +64,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void AddHealth(int32 Amount);
 
+	UFUNCTION()
+	void UpdateOverheadScore();
 };

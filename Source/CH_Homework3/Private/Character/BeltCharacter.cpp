@@ -11,6 +11,7 @@
 
 #include "EnhancedInputComponent.h"
 #include "BeltGameState.h"
+#include "UI/PlayerUI.h"
 
 
 // Sets default values
@@ -63,7 +64,8 @@ int32 ABeltCharacter::GetHeath() const
 void ABeltCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	UpdateOverheadHP();
+	UpdateOverheadScore();
 }
 
 void ABeltCharacter::Tick(float DeltaTime)
@@ -135,7 +137,7 @@ void ABeltCharacter::OnDeath()
 	if (!BeltGameState) {
 		return;
 	}
-	BeltGameState->OnGameOver();
+	BeltGameState->OnGameOver(true);
 }
 
 void ABeltCharacter::UpdateOverheadHP()
@@ -145,12 +147,10 @@ void ABeltCharacter::UpdateOverheadHP()
 	UUserWidget* OverheadWidgetInstance = OverheadWidget->GetUserWidgetObject();
 	if (!OverheadWidgetInstance) return;
 
-	UTextBlock* HPText = Cast<UTextBlock>(OverheadWidgetInstance->GetWidgetFromName(TEXT("OverheadHP")));
-	if (!HPText) {
-		return;
-	}
-	HPText->SetText(FText::FromString(FString::Printf(TEXT("%d / %d"), Health, MaxHealth)));
+	UPlayerUI* PlayerUi = Cast<UPlayerUI>(OverheadWidgetInstance);
+	if (!PlayerUi) return;
 
+	PlayerUi->SetHealth(Health, MaxHealth);
 }
 
 
@@ -160,4 +160,20 @@ void ABeltCharacter::AddHealth(int32 Amount)
 		return;
 	}
 	Health = FMath::Clamp(Health + Amount, 0, MaxHealth);
+	UpdateOverheadHP();
+}
+
+void ABeltCharacter::UpdateOverheadScore()
+{
+	ABeltGameState* BeltGameState = Cast<ABeltGameState>(GetWorld()->GetGameState());
+	if (!BeltGameState) return;
+	if (!OverheadWidget) return;
+
+	UUserWidget* OverheadWidgetInstance = OverheadWidget->GetUserWidgetObject();
+	if (!OverheadWidgetInstance) return;
+
+	UPlayerUI* PlayerUi = Cast<UPlayerUI>(OverheadWidgetInstance);
+	if (!PlayerUi) return;
+
+	PlayerUi->SetScore(BeltGameState->GetScore());
 }
