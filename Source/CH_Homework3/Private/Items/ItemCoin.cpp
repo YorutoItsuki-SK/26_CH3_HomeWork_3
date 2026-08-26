@@ -1,5 +1,6 @@
 ﻿#include "Items/ItemCoin.h"
 #include "BeltGameState.h"
+#include "Character/BeltCharacter.h"
 
 AItemCoin::AItemCoin()
 {
@@ -13,6 +14,10 @@ void AItemCoin::ActivateItem(AActor* Activator)
 	ABeltGameState* GameState = Cast<ABeltGameState>(GetWorld()->GetGameState());
 	if (GameState) {
 		GameState->AddScore(Score);
+	}
+	ABeltCharacter* BeltCharacter = Cast<ABeltCharacter>(Activator);
+	if (BeltCharacter) {
+		BeltCharacter->UpdateOverheadScore();
 	}
 	Super::ActivateItem(Activator);
 	Super::ReturnToPool();
