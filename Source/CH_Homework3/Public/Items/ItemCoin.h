@@ -18,7 +18,7 @@ public:
 	AItemCoin();
 	
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="GameData")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Item|Score")
 	int32 Score;
 
 	virtual void ActivateItem(AActor* Activator) override;

@@ -16,6 +16,11 @@ class CH_HOMEWORK3_API AItemBase : public APoolingObject
 public:
 	AItemBase();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item|Name")
+	FString ItemName;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item|Desc")
+	FString ItemDesc;
+
 	UFUNCTION()
 	virtual void ActivateItem(AActor* Activator);
 

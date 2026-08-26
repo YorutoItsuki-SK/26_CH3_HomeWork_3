@@ -4,6 +4,8 @@
 AItemCoin::AItemCoin()
 {
 	Score = 10;
+	ItemName =  TEXT("코인");
+	ItemDesc = FString::Printf(TEXT("%d 점수를 획득"), Score);
 }
 
 void AItemCoin::ActivateItem(AActor* Activator)

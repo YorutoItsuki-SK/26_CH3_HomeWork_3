@@ -1,6 +1,7 @@
 ﻿#include "Items/ItemBase.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
 #include "Spawner/ItemSpawnVolume.h"
 #include "BeltGameMode.h"
@@ -25,11 +26,21 @@ AItemBase::AItemBase()
 	ItemWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("Widget"));
 	ItemWidget->SetVisibility(false);
 	ItemWidget->SetupAttachment(Scene);
+
+	ItemName = TEXT("기본 아이템 이름");
+	ItemDesc = TEXT("기본 아이템 설명");
 }
 
 void AItemBase::ActivateItem(AActor* Activator)
 {
 	bIsActivated = true;
+	if (PickupSound) {
+		UGameplayStatics::PlaySoundAtLocation(
+			GetWorld(),
+			PickupSound,
+			GetActorLocation()
+		);
+	}
 }
 
 void AItemBase::Deploy(FVector Location)
@@ -63,6 +74,17 @@ void AItemBase::BeginPlay()
 	CollisionActive->OnComponentEndOverlap.AddDynamic(this, &AItemBase::OnOverlapEndActive);
 	CollisionUi->OnComponentBeginOverlap.AddDynamic(this, &AItemBase::OnOverlapStartWidget);
 	CollisionUi->OnComponentEndOverlap.AddDynamic(this, &AItemBase::OnOverlapEndWidget);
+
+	if (UUserWidget* ItemWidgetInstance = ItemWidget->GetUserWidgetObject()) {
+		UTextBlock* ItemNameText = Cast<UTextBlock>(ItemWidgetInstance->GetWidgetFromName(TEXT("ItemNameText")));
+		if (ItemNameText) {
+			ItemNameText->SetText(FText::FromString(ItemName));
+		}
+		UTextBlock* ItemDescText = Cast<UTextBlock>(ItemWidgetInstance->GetWidgetFromName(TEXT("ItemDescText")));
+		if (ItemDescText) {
+			ItemDescText->SetText(FText::FromString(ItemDesc));
+		}
+	}
 }
 
 void AItemBase::OnOverlapStartWidget(
