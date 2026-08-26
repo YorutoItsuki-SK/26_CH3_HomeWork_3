@@ -45,3 +45,13 @@ UDataTable* UBeltGameInstance::GetTableWave() const
 	UE_LOG(LogTemp, Warning, TEXT("UBeltGameInstance::GetTableWave is Null"));
 	return nullptr;
 }
+
+bool UBeltGameInstance::HasMoreLevel() const
+{
+	if (CurrentLevelIndex >= TableWaves.Num()) {
+		return false;
+	}
+	else {
+		return true;
+	}
+}

@@ -124,11 +124,14 @@ void ABeltGameMode::ItemDespawned() {
 
 void ABeltGameMode::GoToNextLevel()
 {
-	UE_LOG(LogTemp, Warning, TEXT("ABeltGameMode::GoToNextLevel"));
-	ABeltGameState* BeltGameState = Cast<ABeltGameState>(GetWorld()->GetGameState());
-	if (!BeltGameState) {
-		UE_LOG(LogTemp, Warning, TEXT("ABeltGameMode::GoToNextLevel, BeltGameState is Null"));
+	APlayerController* PlayerControllerRaw = GetWorld()->GetFirstPlayerController();
+	if (!PlayerControllerRaw) {
 		return;
 	}
-	BeltGameState->EndLevel();
+	ATestPlayerController* PlayerController = Cast<ATestPlayerController>(PlayerControllerRaw);
+	if (!PlayerController) {
+		return;
+	}
+	PlayerController->SetPause(true);
+	PlayerController->ShowMainMenu();
 }

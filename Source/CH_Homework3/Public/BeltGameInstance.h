@@ -24,6 +24,8 @@ public:
 	void ResetAllValue();
 	UFUNCTION(BlueprintCallable, Category = "GameData")
 	UDataTable* GetTableWave() const;
+	UFUNCTION(BlueprintCallable, Category = "GameData")
+	bool HasMoreLevel() const;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "GameData")
